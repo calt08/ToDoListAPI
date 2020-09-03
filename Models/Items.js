@@ -1,3 +1,5 @@
+const Joi = require("joi");
+
 class Items {
     constructor(id, owner, description, status, dueDate) {
         this.id = id;
@@ -8,4 +10,13 @@ class Items {
     }
 }
 
-module.exports = Items;
+const ItemSchema = Joi.object().keys({
+    id: Joi.number().required(),
+    owner: Joi.string().required(),
+    description: Joi.string().required(),
+    status: Joi.bool().required(),
+    dueDate: Joi.date().required()
+})
+
+
+module.exports = { Items, ItemSchema };

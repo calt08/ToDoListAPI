@@ -19,7 +19,8 @@
     },
     "homepage": "https://github.com/calt08/ToDoListAPI#readme",
     "dependencies": {
-        "express": "^4.17.1"
+        "express": "^4.17.1",
+        "joi": "^17.2.1"
     },
     "devDependencies": {
         "nodemon": "^2.0.4"
