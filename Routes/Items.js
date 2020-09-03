@@ -5,8 +5,6 @@ const Joi = require("joi");
 itemsList = [];
 
 router.get("", (req, res) => {
-    // let test = new Items(1, "Dejim", "Test", true, "13443234");
-    // console.log(test);
     res.status(200).send(itemsList);
 });
 
