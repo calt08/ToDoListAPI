@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Items, ItemSchema } = require("../Models/Items");
+const { ItemSchema } = require("../Schemas/Items");
 const Joi = require("joi");
 
 itemsList = [];

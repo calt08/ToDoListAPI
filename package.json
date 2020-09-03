@@ -20,9 +20,11 @@
     "homepage": "https://github.com/calt08/ToDoListAPI#readme",
     "dependencies": {
         "express": "^4.17.1",
-        "joi": "^17.2.1"
+        "joi": "^17.2.1",
+        "sequelize": "^6.3.5"
     },
     "devDependencies": {
-        "nodemon": "^2.0.4"
+        "nodemon": "^2.0.4",
+        "sqlite3": "^5.0.0"
     }
 }
