@@ -1,23 +1,24 @@
 const router = require("express").Router();
 const { ItemSchema } = require("../Schemas/Items");
-const Joi = require("joi");
+// const Joi = require("joi");
+const { Item } = require("../models");
 
-itemsList = [];
+router.get("", async (req, res) => {
+    const items = await Item.findAll();
 
-router.get("", (req, res) => {
-    res.status(200).send(itemsList);
+    res.status(200).send(items);
 });
 
-router.post("", (req, res) => {
+router.post("", async (req, res) => {
     const validation = ItemSchema.validate(req.body);
 
     if (validation.error) {
         res.status(400).send(validation);
     }
 
-    let item = new Items(req.body.id, req.body.owner, req.body.description, req.body.status, req.body.dueDate);
-    itemsList.push(item);
-    res.status(201).send(item);
+    const createdItem = await Item.create(validation.value);
+
+    res.status(201).send(createdItem);
 });
 
 router.put("/:id", (req, res) => {
