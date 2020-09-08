@@ -3,13 +3,11 @@ import { createConnection } from "typeorm";
 // import { User } from "./entity/User";
 import * as express from "express";
 
-
 const app = express();
 createConnection();
 
 //Middlewares
 app.use(express.json());
-
 
 //Import Routes
 import itemsRoute from "./Routes/Items.route";

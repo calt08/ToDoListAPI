@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import { Item } from '../entity/Item';
 import { ItemSchema, ItemPatchSchema } from '../Schemas/Items';
+import { User } from '../entity/User';
 
 const router = require('express').Router();
 
@@ -30,28 +31,30 @@ router.post("", async (req: Request, res: Response): Promise<Response> => {
         return res.status(400).send(validation);
     }
 
-    const createdItem = getRepository(Item).create(validation.value);
-    const result = await getRepository(Item).save(validation.value);
+    const user = await getRepository(User).findOne(parseInt(<string>req.query.userId));
+    validation.value.user = user; // Added the user to the object
 
-    return res.status(201).send(result);
+    const newItem = getRepository(Item).create(validation.value);
+    const result = await getRepository(Item).save(newItem);
+
+    return res.status(201).send(newItem);
 });
 
-// router.put("/:id", (req, res) => {
-//     const validation = ItemSchema.validate(req.body);
+router.put("/:id", async (req: Request, res: Response): Promise<Response> => {
+    const validation = ItemSchema.validate(req.body);
+    if (validation.error) {
+        return res.status(400).send(validation);
+    }
 
-//     if (validation.error) {
-//         res.status(400).send(validation);
-//     }
-
-//     let item = itemsList.find((elem) => elem.id == req.params.id);
-//     // item.owner = req.body.owner;
-//     item.description = req.body.description;
-//     item.status = req.body.status;
-//     item.dueDate = req.body.dueDate;
-
-//     res.status(200).send(item);
-
-// })
+    let itemSelected = await getRepository(Item).findOne(parseInt(<string>req.params.id));
+    if (itemSelected) {
+        const itemUpdated = getRepository(Item).merge(itemSelected, req.body);
+        const result = await getRepository(Item).save(itemUpdated);
+        return res.status(200).send(result);
+    } else {
+        return res.status(404).send('Item not found');
+    }
+})
 
 // router.patch("/:id", async (req, res) => {
 //     const validation = ItemPatchSchema.validate(req.body);
@@ -59,20 +62,11 @@ router.post("", async (req: Request, res: Response): Promise<Response> => {
 //         res.status(400).send(validation);
 //     }
 
-//     let itemSelected = await Item.findByPk(req.params.id);
+//     let itemSelected = await getRepository(Item).findOne(parseInt(<string>req.params.id));
 
 //     if (itemSelected === null) {
 //         res.status(404).send("Not found")
 //     }
-
-//     // for (const element in req.body) {
-//     //     console.log(`${element}`)
-//     //     if (req.body.hasOwnProperty(element)) {
-//     //         itemSelected.update({
-//     //             "element": req.body[element]
-//     //         })
-//     //     }
-//     // }
 
 //     if (validation.value.description) {
 //         itemSelected.update({
