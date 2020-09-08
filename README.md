@@ -1,23 +1,15 @@
 # ToDoListAPI
 
 
-sequelize scripts executed:
-```
-npm install --save -g sequelize-cli sequelize sqlite3
+# Awesome Project Build with TypeORM
 
-npx sequelize-cli init 
+Steps to run this project:
 
-npx sequelize-cli model:generate --name User --attributes email:string,password:string
+1. Run `npm i` command
+2. Setup database settings inside `ormconfig.json` file
+3. Run `npm start` command
 
-npx sequelize-cli model:generate --name Item --attributes ownerId:integer,description:string,status:boolean,dueDate:date
+npx ts-node ./node_modules/typeorm/cli.js migration:create -n initialMigration
 
-npx sequelize-cli db:migrate 
-
-```
-
-Run Server
-
-```
-npm start
-```
+npx ts-node ./node_modules/typeorm/cli.js migration:run
 
