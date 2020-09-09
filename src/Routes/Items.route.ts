@@ -9,22 +9,14 @@ const router = require('express').Router();
 
 router.use(basicAuth({ authorizer: Authorizer, authorizeAsync: true }));
 
-function Authorizer(username: string, password: string) {
-    let user = searchUser(username, password);
-    // if () {
-    const userMatches = basicAuth.safeCompare(username, email)
-    const passwordMatches = basicAuth.safeCompare(password, user.password)
-    return userMatches && passwordMatches;
-    // }
-    // return false;
-}
-
-async function searchUser(username: string, password: string) {
-    const user = await getRepository(User).findOne({ where: { email: username } });
-    let email = <string>user.email;
-    let pass = <string>user.password;
-
-    return { email, pass };
+async function Authorizer(username: string, password: string, cb: Function) {
+    let user = await getRepository(User).findOne({ where: { email: username } });
+    if (user) {
+        const userMatches = basicAuth.safeCompare(username, user.email)
+        const passwordMatches = basicAuth.safeCompare(password, user.password)
+        return cb(null, userMatches && passwordMatches);
+    }
+    return cb(null, false);
 }
 
 router.get('', async (req: Request, res: Response): Promise<Response> => {

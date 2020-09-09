@@ -1,7 +1,6 @@
 import * as Joi from "joi";
 
 export const UserSchema = Joi.object().keys({
-    description: Joi.string().required(),
-    status: Joi.bool().required(),
-    dueDate: Joi.date().required()
+    email: Joi.string().max(255).required(),
+    password: Joi.string().max(255).required(),
 })
