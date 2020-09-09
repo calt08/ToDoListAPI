@@ -3,8 +3,29 @@ import { getRepository } from 'typeorm';
 import { Item } from '../entity/Item';
 import { ItemSchema, ItemPatchSchema } from '../Schemas/Items';
 import { User } from '../entity/User';
+import * as basicAuth from 'express-basic-auth';
 
 const router = require('express').Router();
+
+router.use(basicAuth({ authorizer: Authorizer, authorizeAsync: true }));
+
+function Authorizer(username: string, password: string) {
+    let user = searchUser(username, password);
+    // if () {
+    const userMatches = basicAuth.safeCompare(username, email)
+    const passwordMatches = basicAuth.safeCompare(password, user.password)
+    return userMatches && passwordMatches;
+    // }
+    // return false;
+}
+
+async function searchUser(username: string, password: string) {
+    const user = await getRepository(User).findOne({ where: { email: username } });
+    let email = <string>user.email;
+    let pass = <string>user.password;
+
+    return { email, pass };
+}
 
 router.get('', async (req: Request, res: Response): Promise<Response> => {
     let items = await getRepository(Item).find();
@@ -24,7 +45,7 @@ router.get('', async (req: Request, res: Response): Promise<Response> => {
     return res.status(200).send(items);
 });
 
-router.post("", async (req: Request, res: Response): Promise<Response> => {
+router.post('', async (req: Request, res: Response): Promise<Response> => {
     const validation = ItemSchema.validate(req.body);
 
     if (validation.error) {
@@ -40,7 +61,7 @@ router.post("", async (req: Request, res: Response): Promise<Response> => {
     return res.status(201).send(newItem);
 });
 
-router.put("/:id", async (req: Request, res: Response): Promise<Response> => {
+router.put('/:id', async (req: Request, res: Response): Promise<Response> => {
     const validation = ItemSchema.validate(req.body);
     if (validation.error) {
         return res.status(400).send(validation);
@@ -56,37 +77,29 @@ router.put("/:id", async (req: Request, res: Response): Promise<Response> => {
     }
 })
 
-// router.patch("/:id", async (req, res) => {
-//     const validation = ItemPatchSchema.validate(req.body);
-//     if (validation.error) {
-//         res.status(400).send(validation);
-//     }
+router.patch('/:id', async (req: Request, res: Response): Promise<Response> => {
+    const validation = ItemPatchSchema.validate(req.body);
+    if (validation.error) {
+        return res.status(400).send(validation);
+    }
 
-//     let itemSelected = await getRepository(Item).findOne(parseInt(<string>req.params.id));
-
-//     if (itemSelected === null) {
-//         res.status(404).send("Not found")
-//     }
-
-//     if (validation.value.description) {
-//         itemSelected.update({
-//             "description": validation.value.description
-//         })
-//     }
-//     if (validation.value.status) {
-//         itemSelected.update({
-//             "status": validation.value.status
-//         })
-//     }
-//     if (validation.value.dueDate) {
-//         itemSelected.update({
-//             "dueDate": validation.value.dueDate
-//         })
-//     }
-
-//     res.status(200).send(itemSelected)
-
-// });
-
+    let itemSelected = await getRepository(Item).findOne(parseInt(<string>req.params.id));
+    if (itemSelected) {
+        if (validation.value.description) {
+            itemSelected.description = validation.value.description;
+        }
+        if (validation.value.status) {
+            itemSelected.status = validation.value.status;
+        }
+        if (validation.value.dueDate) {
+            itemSelected.dueDate = validation.value.dueDate;
+        }
+        // const itemUpdated = getRepository(Item).merge(itemSelected, req.body);
+        const result = await getRepository(Item).save(itemSelected);
+        return res.status(200).send(result);
+    } else {
+        return res.status(404).send('Item not found');
+    }
+});
 
 export default router;

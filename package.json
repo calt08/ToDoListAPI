@@ -20,11 +20,12 @@
     },
     "homepage": "https://github.com/calt08/ToDoListAPI#readme",
     "dependencies": {
-        "typeorm": "0.2.25",
+        "express": "^4.17.1",
+        "express-basic-auth": "^1.2.0",
+        "joi": "^17.2.1",
         "reflect-metadata": "^0.1.10",
         "sqlite3": "^5.0.0",
-        "express": "^4.17.1",
-        "joi": "^17.2.1"
+        "typeorm": "0.2.25"
     },
     "devDependencies": {
         "@types/express": "^4.17.8",

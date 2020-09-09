@@ -13,6 +13,3 @@ export const ItemPatchSchema = Joi.object().keys({
     dueDate: Joi.date()
 })
 
-
-
-// module.exports = { ItemSchema, ItemPatchSchema };
