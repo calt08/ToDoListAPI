@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, UpdateDateColumn, VersionColumn } from "typeorm";
 import { User } from "./User";
 
 @Entity()
@@ -15,6 +15,9 @@ export class Item {
 
     @Column()
     dueDate: Date;
+
+    @VersionColumn()
+    version: number;
 
     @ManyToOne(type => User, user => user.items)
     user: User;
