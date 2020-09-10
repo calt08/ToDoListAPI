@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
-import { Item } from '../entity/Item';
 import { ItemSchema, ItemPatchSchema } from '../Schemas/Items';
+import { Item } from '../entity/Item';
 import { User } from '../entity/User';
 import * as basicAuth from 'express-basic-auth';
 
@@ -40,7 +40,6 @@ router.get('', async (req: Request, res: Response): Promise<Response> => {
         items = items.filter(item => item.status == JSON.parse(<string>req.query.status));
     }
 
-    res.setHeader('Cache-Control', 'public')
     return res.status(200).send({ version, items });
 });
 
@@ -50,7 +49,6 @@ router.post('', async (req: basicAuth.IBasicAuthedRequest, res: Response): Promi
     if (validation.error) {
         return res.status(400).send(validation);
     }
-
 
     let user = await getRepository(User).findOne({ where: { email: req.auth.user } });
 
@@ -80,7 +78,6 @@ router.put('/:id', async (req: Request, res: Response): Promise<Response> => {
             return res.status(200).send(result);
         }
         return res.status(409).send('You don\'t have the last version of this Item');
-
 
     } else {
         return res.status(404).send('Item not found');
