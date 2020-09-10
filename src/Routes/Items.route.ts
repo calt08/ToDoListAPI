@@ -24,11 +24,11 @@ router.get('', async (req: Request, res: Response): Promise<Response> => {
 
     if (req.query.startDate) {
         const startDate = new Date(<string>req.query.startDate);
-        items = items.filter(item => new Date(item.dueDate) > startDate);
+        items = items.filter(item => new Date(item.dueDate) >= startDate);
     }
     if (req.query.endDate) {
         const endDate = new Date(<string>req.query.endDate);
-        items = items.filter(item => new Date(item.dueDate) < endDate);
+        items = items.filter(item => new Date(item.dueDate) <= endDate);
     }
     if (req.query.status) {
         items = items.filter(item => item.status == JSON.parse(<string>req.query.status));
@@ -37,20 +37,20 @@ router.get('', async (req: Request, res: Response): Promise<Response> => {
     return res.status(200).send(items);
 });
 
-router.post('', async (req: Request, res: Response): Promise<Response> => {
+router.post('', async (req: basicAuth.IBasicAuthedRequest, res: Response): Promise<Response> => {
     const validation = ItemSchema.validate(req.body);
 
     if (validation.error) {
         return res.status(400).send(validation);
     }
+    let user = await getRepository(User).findOne({ where: { email: req.auth.user } });
 
-    const user = await getRepository(User).findOne(parseInt(<string>req.query.userId));
     validation.value.user = user; // Added the user to the object
 
     const newItem = getRepository(Item).create(validation.value);
     const result = await getRepository(Item).save(newItem);
 
-    return res.status(201).send(newItem);
+    return res.status(201).send(result);
 });
 
 router.put('/:id', async (req: Request, res: Response): Promise<Response> => {
