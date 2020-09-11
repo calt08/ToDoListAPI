@@ -5,7 +5,7 @@ import { Item } from '../entity/Item';
 import { User } from '../entity/User';
 import * as basicAuth from 'express-basic-auth';
 
-let version = 0;
+let version = 1;
 
 const router = require('express').Router();
 
@@ -24,7 +24,7 @@ async function Authorizer(username: string, password: string, cb: Function) {
 router.get('', async (req: Request, res: Response): Promise<Response> => {
     let items = await getRepository(Item).find();
 
-    if (parseInt(<string>req.headers.version) == version) {
+    if (parseInt(<string>req.headers.etag) == version) {
         return res.status(304).send();
     }
 
@@ -71,7 +71,7 @@ router.put('/:id', async (req: Request, res: Response): Promise<Response> => {
     let itemSelected = await getRepository(Item).findOne(parseInt(<string>req.params.id));
     if (itemSelected) {
 
-        if (parseInt(<string>req.headers.version) == itemSelected.version) {
+        if (parseInt(<string>req.headers.etag) == itemSelected.version) {
             const itemUpdated = getRepository(Item).merge(itemSelected, req.body);
             const result = await getRepository(Item).save(itemUpdated);
             version++;
@@ -92,7 +92,7 @@ router.patch('/:id', async (req: Request, res: Response): Promise<Response> => {
 
     let itemSelected = await getRepository(Item).findOne(parseInt(<string>req.params.id));
     if (itemSelected) {
-        if (parseInt(<string>req.headers.version) == itemSelected.version) {
+        if (parseInt(<string>req.headers.etag) == itemSelected.version) {
             if (validation.value.description) {
                 itemSelected.description = validation.value.description;
             }
@@ -114,13 +114,17 @@ router.patch('/:id', async (req: Request, res: Response): Promise<Response> => {
 
 router.delete('/:id', async (req: Request, res: Response): Promise<Response> => {
     const id = parseInt(<string>req.params.id);
-    const item = await getRepository(Item).findOne(id);
-    if (!item) {
+    const itemSelected = await getRepository(Item).findOne(id);
+    if (!itemSelected) {
         return res.status(404).send(`There is no item with id: ${req.params.id}`)
     }
-    const result = await getRepository(Item).delete(id);
-    version++;
-    return res.status(200).send();
+
+    if (parseInt(<string>req.headers.etag) == itemSelected.version) {
+        const result = await getRepository(Item).delete(id);
+        version++;
+        return res.status(200).send();
+    }
+    return res.status(409).send('You don\'t have the last version of this Item');
 });
 
 export default router;
